@@ -1,12 +1,12 @@
 package com.example.demo.controllers;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.example.demo.dto.BetsByEmailDto;
 import com.example.demo.dto.LotteryOutputDto;
 import com.example.demo.dto.UserInputDto;
 import com.example.demo.entities.User;
@@ -23,6 +24,7 @@ import com.example.demo.services.UserService;
 
 @RestController
 @RequestMapping(value = "/users")
+@Validated
 public class UserController {
 
 	@Autowired
@@ -48,11 +50,16 @@ public class UserController {
 	}
 	
 	@GetMapping("/numbers")
-	public ResponseEntity<List<LotteryOutputDto>> seeNumbers(@RequestParam String email){
+	public ResponseEntity<BetsByEmailDto> seeNumbers(@RequestParam("email") String email){
 		User user = userService.findByEmail(email);
 		
-		List<LotteryOutputDto> lotteriesOutputDto = lotteryService.findAllByUser(user);
+		if(user == null) {
+			BetsByEmailDto betsByEmailDto = BetsByEmailDto.builder().user(UserInputDto.builder().email(email).build()).build();
+			return ResponseEntity.ok(betsByEmailDto);
+		}
 		
-		return ResponseEntity.ok(lotteriesOutputDto);
+		BetsByEmailDto betsByEmailDto = lotteryService.findAllByUser(user);
+		
+		return ResponseEntity.ok(betsByEmailDto);
 	}
 }

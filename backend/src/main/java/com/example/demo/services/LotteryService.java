@@ -8,13 +8,17 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.BetsByEmailDto;
 import com.example.demo.dto.LotteryOutputDto;
+import com.example.demo.dto.UserInputDto;
 import com.example.demo.entities.Lottery;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.LotteryRepository;
 
 @Service
 public class LotteryService {
+	
+	
 
 	@Autowired
 	private LotteryRepository lotteryRepository;
@@ -32,11 +36,23 @@ public class LotteryService {
 
 	}
 	
-	public List<LotteryOutputDto> findAllByUser(User user) {
+	public BetsByEmailDto findAllByUser(User user) {
 		List<Lottery> lotteries = lotteryRepository.findByUser(user);
+		
+
+		if(lotteries.isEmpty()) {
+			return BetsByEmailDto.builder().build();
+		}
+		
+		
+		
+		UserInputDto userInputDto = UserInputDto.builder().email(user.getEmail()).build();
 		
 		List<LotteryOutputDto> lotteriesOutputDto = lotteries.stream().map((lottery) -> modelMapper.map(lottery, LotteryOutputDto.class)).collect(Collectors.toList());
 		
-		return lotteriesOutputDto;
+		
+		BetsByEmailDto betsByEmailDto = BetsByEmailDto.builder().bets(lotteriesOutputDto.stream().map(bet -> modelMapper.map(bet, BetsByEmailDto.Bet.class)).collect(Collectors.toList())).user(userInputDto).build();
+		
+		return betsByEmailDto;
 	}
 }

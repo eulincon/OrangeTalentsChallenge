@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -33,6 +31,6 @@ public class Lottery implements Serializable{
 	private Long id;
 	private String numbers;
 	private Instant moment;
-	@ManyToOne @JsonIgnore
+	@ManyToOne
 	private User user;
 }
